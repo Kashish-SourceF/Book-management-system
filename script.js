@@ -1,3 +1,47 @@
+function calculateBookAge(pubDate) {
+  const publicationDate = new Date(pubDate);
+  const today = new Date();
+
+ 
+  if (publicationDate > today) {
+    return "Not Published Yet";
+  }
+
+  let years = today.getFullYear() - publicationDate.getFullYear();
+  let months = today.getMonth() - publicationDate.getMonth();
+  let days = today.getDate() - publicationDate.getDate();
+ 
+   if (months < 0) {
+    years--;
+    months += 12;
+  }
+    if (days < 0) {
+    months--;
+    //  no. of days in previous month
+    const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    days += prevMonth.getDate();
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+  }
+  let ageString = "";
+
+  if (years > 0)
+  ageString += `${years} year${years > 1 ? "s" : ""}`;
+
+
+  if (months > 0)
+  ageString += (ageString ? ", " : "") + `${months} month${months > 1 ? "s" : ""}`;
+
+  if (!ageString && days >= 0)
+  ageString = `${days} day${days !== 1 ? "s" : ""} `;
+
+return ageString;
+
+}
+
+
 const bookForm = document.getElementById('bookForm');
 let rowBeingEdited = null;
 
@@ -31,14 +75,16 @@ bookForm.addEventListener('submit',  (event)=> {         //  function (event) -t
   }
 
 
-  // ✅ EDIT mode — update existing row instead of adding new one
-  if (rowBeingEdited) {
+  // EDIT mode — update existing row instead of adding new one
+  if (rowBeingEdited !== null) {
     const cells = rowBeingEdited.querySelectorAll('td');
     cells[0].textContent = title;
     cells[1].textContent = author;
     cells[2].textContent = isbn;
     cells[3].textContent = pubDate;
     cells[4].textContent = genre;
+    cells[5].textContent = calculateBookAge(pubDate) ;
+
 
     rowBeingEdited = null;
     bookForm.reset();
@@ -72,11 +118,16 @@ const titleCell = document.createElement('td');
   const pubDateCell = document.createElement('td');
   pubDateCell.textContent = pubDate;
   row.appendChild(pubDateCell);
-
+  
 //**GENRE
   const genreCell = document.createElement('td');
   genreCell.textContent = genre;
   row.appendChild(genreCell);
+
+//**AGE 
+  const ageCell = document.createElement('td');
+  ageCell.textContent = calculateBookAge(pubDate);
+  row.appendChild(ageCell);
 
 //**ACTION
   const actionsCell = document.createElement('td');
@@ -113,5 +164,5 @@ const titleCell = document.createElement('td');
 tableBody.appendChild(row);
 
 bookForm.reset();
-console.log("Kashish");
+
 });
