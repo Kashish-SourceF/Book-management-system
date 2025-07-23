@@ -1,3 +1,4 @@
+//calculating age of book
 function calculateBookAge(pubDate) {
   const publicationDate = new Date(pubDate);
   const today = new Date();
@@ -40,6 +41,22 @@ function calculateBookAge(pubDate) {
 return ageString;
 
 }
+
+//promise for server request
+function simulateServerRequest(book) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (book.title && book.author && book.isbn && book.pubDate && book.genre) {
+        resolve(`Book "${book.title}" added successfully!`);
+      } else {
+        reject("Server validation failed. All fields are required.");
+      }
+    }, 1000);
+  });
+}
+
+
+
 
 
 const bookForm = document.getElementById('bookForm');
@@ -166,3 +183,65 @@ tableBody.appendChild(row);
 bookForm.reset();
 
 });
+
+let allApiBooks = []; // memory to store all fetched books globally
+
+// Fetch external data from API
+function fetchExternalBooks() {
+  fetch("https://jsonplaceholder.typicode.com/posts?_limit=5")  // limit to 5 books
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch API books");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      allApiBooks = data;          // save full data for future filtering
+      displayExternalBooks(data);  // initial full display
+    })
+    .catch((error) => {
+      console.error("API Error:", error);
+    });
+}
+
+// Display books in table
+function displayExternalBooks(books) {
+  const apiTableBody = document.querySelector("#apiBookTable tbody");
+  apiTableBody.innerHTML = ""; // clear old table content
+
+  books.forEach((book) => {
+    const row = document.createElement("tr");
+
+    const titleCell = document.createElement("td");
+    titleCell.textContent = book.title;
+    row.appendChild(titleCell);
+
+    const authorCell = document.createElement("td");
+    authorCell.textContent = ` ${book.userId}`;
+    row.appendChild(authorCell);
+
+    apiTableBody.appendChild(row);
+  });
+}
+
+// Filter books based on input
+function filterBooks(keyword) {
+  const filtered = allApiBooks.filter((book) => {
+    const lowerKeyword = keyword.toLowerCase();
+    return (
+      book.title.toLowerCase().startsWith(lowerKeyword) ||book.title.toLowerCase().includes(lowerKeyword) ||  String(book.userId).includes(lowerKeyword)
+    );
+  });
+
+  displayExternalBooks(filtered); // display only matching books
+}
+
+// Listen for search input
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input", (e) => {
+  const keyword = e.target.value.trim();
+  filterBooks(keyword); // filter display as user types
+});
+
+// Trigger API fetch on page load
+window.addEventListener("load", fetchExternalBooks);

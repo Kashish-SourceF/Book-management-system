@@ -34,7 +34,7 @@
   
 
 </form>
-<h2>Book List</h2>
+<h2>User enetered Book List</h2>
 <table id="bookTable" border="1">
   <thead>
     <tr>
@@ -48,9 +48,28 @@
     </tr>
   </thead>
   <tbody>
-    <!-- Book rows will be inserted here dynamically -->
+    <!-- Book rows will be inserted here  -->
   </tbody>
 </table>
+
+<h2>External Books from API</h2>
+
+<!-- Search Input -->
+<input type="text" id="searchInput" placeholder="Search by title or user ID" />
+
+<!-- Display Table -->
+<table id="apiBookTable" border="1">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Author (User ID)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- API fetched books will be inserted here dynamically -->
+  </tbody>
+</table>
+
 <script src="script.js"></script> 
 </body>
 
