@@ -1,65 +1,166 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Book Management System</title>
-</head>
-<body>
-  <h1>Add a Book</h1>
-  <form id="bookForm" >
-  <label>Title:</label><br>
-  <input type="text" name="title" id="title"><br><br>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 text-gray-800 px-4 py-6 sm:px-6 md:px-12">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6 text-center text-black-700">
+        📚 Book Management System
+      </h1>
 
-  <label>Author:</label><br>
-  <input type="text" name="author" id="author"><br><br>
+      <!-- Book Form -->
+      <form id="bookForm" class="bg-white p-6 rounded-lg shadow-md space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-medium mb-1">Title:</label>
+            <input type="text" id="title" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-purple-500" />
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Author:</label>
+            <input type="text" id="author" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-purple-500" />
+          </div>
+          <div>
+            <label class="block font-medium mb-1">ISBN:</label>
+            <input type="text" id="isbn" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-purple-500" />
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Publication Date:</label>
+            <input type="date" id="pubDate" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-purple-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-medium mb-1">Genre:</label>
+            <select id="genre" required class="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring focus:border-purple-500">
+              <option value="">--Select Genre--</option>
+              <option value="Fiction">Fiction</option>
+              <option value="Non-Fiction">Non-Fiction</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Sci-Fi">Sci-Fi</option>
+              <option value="Romance">Romance</option>
+              <option value="Horror">Horror</option>
+            </select>
+          </div>
+        </div>
+        <div class="text-center">
+          <button type="submit" id="submitBtn" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition">
+             Add Book
+          </button>
+        </div>
+      </form>
 
-  <label>ISBN:</label><br>
-  <input type="text" name="isbn" id="isbn"><br><br>
+      <!-- Book List -->
+      <h2 class="text-2xl font-semibold mt-10 mb-4 text-blue-700 text-center">📖 Book List</h2>
+      <div class="mb-4">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search by any field..."
+          class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring focus:border-purple-500"
+        />
+      </div>
 
-  <label>Publication Date:</label><br>
-  <input type="date" name="pubDate" id="pubDate"><br><br>
+      <div class="overflow-x-auto">
+        <table id="bookTable" class="min-w-full bg-white border border-gray-300 rounded shadow-md">
+       <thead class="bg-gray-100 text-left text-sm">
+  <tr>
+    <!-- Title -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="titleHeaderText" class="cursor-pointer font-semibold">Title</span>
+        <div class="relative">
+          <button id="titleSortBtn" class="ml-2">▼</button>
+          <div id="titleDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
-  <label>Genre:</label><br>
-  <select name="genre" id="genre" required>
-  <option value="">--Select Genre--</option>
-  <option value="Fiction">Fiction</option>
-  <option value="Non-Fiction">Non-Fiction</option>
-  <option value="Fantasy">Fantasy</option>
-  <option value="Sci-Fi">Sci-Fi</option>
-  <option value="Romance">Romance</option>
-  <option value="Horror">Horror</option>
-  </select><br><br>
+    <!-- Author -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="authorHeaderText" class="cursor-pointer font-semibold">Author</span>
+        <div class="relative">
+          <button id="authorSortBtn" class="ml-2">▼</button>
+          <div id="authorDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
-  <button type="submit" id="submitBtn">Add Book</button>
+    <!-- ISBN -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="isbnHeaderText" class="cursor-pointer font-semibold">ISBN</span>
+        <div class="relative">
+          <button id="isbnSortBtn" class="ml-2">▼</button>
+          <div id="isbnDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
-  
+    <!-- Publication Date -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="pubDateHeaderText" class="cursor-pointer font-semibold">Publication Date</span>
+        <div class="relative">
+          <button id="pubDateSortBtn" class="ml-2">▼</button>
+          <div id="pubDateDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
-</form>
-<h2 class="text-xl font-semibold mt-8 mb-2">Book List</h2>
+    <!-- Genre -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="genreHeaderText" class="cursor-pointer font-semibold">Genre</span>
+        <div class="relative">
+          <button id="genreSortBtn" class="ml-2">▼</button>
+          <div id="genreDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
-<!--  Search Input -->
-<input
-  type="text"
-  id="searchInput"
-  placeholder="Search by Title or ISBN"
-  class="border p-2 mb-4 w-full rounded"
-/>
-<table id="bookTable" border="1">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Author</th>
-      <th>ISBN</th>
-      <th>Publication Date</th>
-      <th>Genre</th>
-      <th>Age of Book</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Book rows will be inserted here dynamically -->
-  </tbody>
-</table>
-<script src="script.js"></script> 
-</body>
+    <!-- Age -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="ageHeaderText" class="cursor-pointer font-semibold">Age of Book</span>
+        <div class="relative">
+          <button id="ageSortBtn" class="ml-2">▼</button>
+          <div id="ageDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div>
+        </div>
+      </div>
+    </th>
 
+    <!-- Actions -->
+    <th class="px-4 py-2 border border-gray-300 font-semibold">Actions</th>
+  </tr>
+</thead>
+          <tbody>
+            <!-- Book rows will be inserted here dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>

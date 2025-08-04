@@ -1,9 +1,20 @@
+let allBooks = []; // To store all books fetched from the server will be updated when sorting
+
+
 //calculating age of book
 function calculateBookAge(pubDate) {
   const publicationDate = new Date(pubDate);
   const today = new Date();
 
- 
+  // Check for invalid date
+  if (isNaN(publicationDate)) return "Invalid date";
+
+  // Check if published today
+  if (publicationDate.toDateString() === today.toDateString()) {
+    return "Published Today";
+  }
+
+  // Check for future date
   if (publicationDate > today) {
     return "Not Published Yet";
   }
@@ -11,14 +22,14 @@ function calculateBookAge(pubDate) {
   let years = today.getFullYear() - publicationDate.getFullYear();
   let months = today.getMonth() - publicationDate.getMonth();
   let days = today.getDate() - publicationDate.getDate();
- 
-   if (months < 0) {
+
+  if (months < 0) {
     years--;
     months += 12;
   }
-    if (days < 0) {
+
+  if (days < 0) {
     months--;
-    //  no. of days in previous month
     const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
     days += prevMonth.getDate();
     if (months < 0) {
@@ -26,20 +37,18 @@ function calculateBookAge(pubDate) {
       months += 12;
     }
   }
+
   let ageString = "";
-
   if (years > 0)
-  ageString += `${years} year${years > 1 ? "s" : ""}`;
-
+    ageString += `${years} year${years > 1 ? "s" : ""}`;
 
   if (months > 0)
-  ageString += (ageString ? ", " : "") + `${months} month${months > 1 ? "s" : ""}`;
+    ageString += (ageString ? ", " : "") + `${months} month${months > 1 ? "s" : ""}`;
 
-  if (!ageString && days >= 0)
-  ageString = `${days} day${days !== 1 ? "s" : ""} `;
+  if (!ageString && days > 0)
+    ageString = `${days} day${days !== 1 ? "s" : ""}`;
 
-return ageString;
-
+  return ageString;
 }
 
 const bookForm = document.getElementById('bookForm');
@@ -56,12 +65,35 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error('Failed to fetch books');
       return response.json();
     })
-    .then(books => books.forEach(book => addBookToTable(book)))
-    .catch(error => console.error('Error fetching books:', error));
+    .then(books => {
+      allBooks = [...books];       // working copy
+
+  renderTable(allBooks); // Render all books initially
+})
+ .catch(error => console.error('Error fetching books:', error));
 });
 
-//  Handle form submit (both add & update)
-bookForm.addEventListener('submit', (event) => {
+//search  input event listener
+const searchInput = document.getElementById('searchInput');
+
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.trim().toLowerCase();
+
+  const filteredBooks = allBooks.filter(book => {
+    return (
+      book.title.toLowerCase().includes(query) ||
+      book.author.toLowerCase().includes(query) ||
+      book.isbn.toLowerCase().includes(query) ||
+      book.pubDate.toLowerCase().includes(query) ||
+      book.genre.toLowerCase().includes(query)
+    );
+  });
+
+  renderTable(filteredBooks);
+});
+
+ 
+ bookForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
   const title = document.getElementById('title').value.trim();
@@ -69,24 +101,31 @@ bookForm.addEventListener('submit', (event) => {
   const isbn = document.getElementById('isbn').value.trim();
   const pubDate = document.getElementById('pubDate').value;
   const genre = document.getElementById('genre').value.trim();
+ 
+  // form submission error handling 
+  const validationErrors = [];
 
-  const anyFieldEmpty = !title || !author || !isbn || !pubDate || !genre;
-  const isbnNotNumber = isbn && isNaN(isbn);
+if (!title) validationErrors.push("Title is required.");
+if (!author) validationErrors.push("Author is required.");
+if (!isbn) validationErrors.push("ISBN is required.");
+if (!pubDate) validationErrors.push("Publication Date is required.");
+if (!genre) validationErrors.push("Genre is required.");
+if (isbn && isNaN(isbn)) validationErrors.push("ISBN must be a number.");
 
-  if (anyFieldEmpty && isbnNotNumber) {
-    alert("Please fill all fields and make sure ISBN is a number.");
-    return;
-  }
-  if (anyFieldEmpty) {
-    alert("Please fill in all the fields.");
-    return;
-  }
-  if (isbnNotNumber) {
-    alert("ISBN must be a number.");
-    return;
-  }
+if (validationErrors.length > 0) {
+  alert(validationErrors.join('\n')); // Show all errors at once
+  return;
+}
 
   const newBook = { title, author, isbn, pubDate, genre };
+
+
+// Set the ID manually if you're not editing
+if (!currentEditingId) {
+  const maxId = allBooks.reduce((max, book) => Math.max(max, parseInt(book.id) || 0), 0);
+  newBook.id = maxId + 1;
+}
+
 
   //  If editing an existing book
   if (currentEditingId) {
@@ -103,6 +142,13 @@ bookForm.addEventListener('submit', (event) => {
       })
       .then(updatedBook => {
         alert(`Book "${updatedBook.title}" updated successfully!`);
+
+        // Update the book in allBooks array
+       const index = allBooks.findIndex(book => book.id === updatedBook.id);
+       if (index !== -1) {
+       allBooks[index] = updatedBook;
+  }
+
         if (rowBeingEdited) {
         const cells = rowBeingEdited.querySelectorAll('td');
         cells[0].textContent = updatedBook.title;
@@ -139,6 +185,8 @@ bookForm.addEventListener('submit', (event) => {
         alert(`Book "${addedBook.title}" added successfully!`);
         bookForm.reset();
         addBookToTable(addedBook);
+        allBooks.push(addedBook); // after successful POST
+
       })
       .catch(error => {
         console.error('Error:', error);
@@ -224,6 +272,8 @@ editButton.addEventListener('click', () => {
     document.getElementById('submitBtn').textContent = 'Add Book';
   }
   row.remove();
+  allBooks = allBooks.filter(b => b.id !== book.id);
+
 
   // Remove data from JSON Server
   fetch(`http://localhost:3000/books/${book.id}`, {
@@ -239,4 +289,105 @@ editButton.addEventListener('click', () => {
   tableBody.appendChild(row);
 }
 
+function renderTable(bookArray) {
+  const tableBody = document.querySelector('#bookTable tbody');
+  tableBody.innerHTML = ""; // Clear existing rows
 
+  bookArray.forEach(book => addBookToTable(book)); // Add rows
+}
+
+function sortBooksBy(field, direction) {
+  const isNumeric = field === 'isbn';
+  const isDate = field === 'pubDate';
+  const isAge = field === 'age';
+
+  allBooks.sort((a, b) => {
+    let valA = a[field];
+    let valB = b[field];
+
+    if (isAge) {
+      valA = new Date() - new Date(a.pubDate);
+      valB = new Date() - new Date(b.pubDate);
+    } else if (isDate) {
+      valA = new Date(valA);
+      valB = new Date(valB);
+    } else if (isNumeric) {
+      valA = parseFloat(valA);
+      valB = parseFloat(valB);
+    } else {
+      valA = valA.toLowerCase();
+      valB = valB.toLowerCase();
+    }
+
+    if (valA < valB) return direction === 'asc' ? -1 : 1;
+    if (valA > valB) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderTable(allBooks);
+}
+
+//restore original order of table after sorting 
+function resetToOriginalOrder() {
+  fetch(API_URL)
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to re-fetch books");
+      return res.json();
+    })
+    .then(freshBooks => {
+      allBooks = [...freshBooks];        // Update working copy
+      renderTable(freshBooks);           // Display latest data
+    })
+    .catch(err => console.error("Reset failed:", err));
+}
+
+
+// Map of header field names to their associated button/dropdown elements
+const sortConfig = [
+  { field: 'title', btnId: 'titleSortBtn', dropdownId: 'titleDropdown', headerId: 'titleHeaderText' },
+  { field: 'author', btnId: 'authorSortBtn', dropdownId: 'authorDropdown', headerId: 'authorHeaderText' },
+  { field: 'isbn', btnId: 'isbnSortBtn', dropdownId: 'isbnDropdown', headerId: 'isbnHeaderText' },
+  { field: 'pubDate', btnId: 'pubDateSortBtn', dropdownId: 'pubDateDropdown', headerId: 'pubDateHeaderText' },
+  { field: 'genre', btnId: 'genreSortBtn', dropdownId: 'genreDropdown', headerId: 'genreHeaderText' },
+  { field: 'age', btnId: 'ageSortBtn', dropdownId: 'ageDropdown', headerId: 'ageHeaderText' }
+];
+
+// Attach event listeners to each ▼ button and dropdown
+sortConfig.forEach(({ field, btnId, dropdownId, headerId }) => {
+  const btn = document.getElementById(btnId);
+  const dropdown = document.getElementById(dropdownId);
+  const header = document.getElementById(headerId);
+
+  if (btn && dropdown) {
+    // Toggle dropdown visibility
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent global click handler from hiding it
+      dropdown.classList.toggle('hidden');
+    });
+
+    // Sort when clicking dropdown option
+    const buttons = dropdown.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const direction = button.getAttribute('data-sort');
+        sortBooksBy(field, direction);
+        dropdown.classList.add('hidden');
+      });
+    });
+  }
+
+  if (header) {
+    // Clicking on column text resets the table to original order
+    header.addEventListener('click', (e) => {
+      resetToOriginalOrder();
+    });
+  }
+});
+
+// Hide all dropdowns when clicking elsewhere
+document.addEventListener('click', () => {
+  sortConfig.forEach(({ dropdownId }) => {
+    const dropdown = document.getElementById(dropdownId);
+    if (dropdown) dropdown.classList.add('hidden');
+  });
+});
