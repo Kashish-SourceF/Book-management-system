@@ -1,0 +1,20 @@
+{
+  "books": [
+    {
+      "title": "Atomic Habits",
+      "author": "montre",
+      "isbn": "2678",
+      "pubDate": "2025-07-02",
+      "genre": "Sci-Fi",
+      "id": "5b5b"
+    },
+    {
+      "title": "Alchemist",
+      "author": "Pablo",
+      "isbn": "355",
+      "pubDate": "2023-02-28",
+      "genre": "Horror",
+      "id": "0365"
+    }
+  ]
+}
