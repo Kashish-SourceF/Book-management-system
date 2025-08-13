@@ -43,12 +43,50 @@
               <option value="Horror">Horror</option>
             </select>
           </div>
+           <div>
+            <label class="block font-medium mb-1">Price: 
+              <span class="text-gray-500 text-sm">(in rupees)</span>
+            </label>
+            <input type="text" id="price" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-purple-500" />
+          </div>
+          <!-- Book Type Selection -->
+          <div class="mb-4">
+            <label class="block font-medium mb-2">Book Type:</label>
+            
+            <div class="flex items-center space-x-4">
+              <label class="flex items-center space-x-1">
+                <input type="radio" name="bookType" value="printed" id="printedRadio" class="accent-purple-600">
+                <span class="text-sm">Printed Book</span>
+              </label>
+
+              <label class="flex items-center space-x-1">
+                <input type="radio" name="bookType" value="ebook" id="ebookRadio" class="accent-purple-600">
+                <span class="text-sm">E-Book</span>
+              </label>
+            </div>
+
+            <!-- Conditional Input Fields (initially hidden) -->
+            <div id="printedFields" class="mt-1 hidden ml-6">
+              <label for="pages" class="text-xs text-gray-600 block mb-1">Pages:</label>
+              <input type="text" id="pages" class="w-32 px-2 py-1 text-sm border border-gray-300 rounded" placeholder="e.g. 200" />
+            </div>
+
+            <div id="ebookFields" class="mt-1 hidden ml-6">
+              <label for="fileSizeMB" class="text-xs text-gray-600 block mb-1">File Size (MB):</label>
+              <input type="text" id="fileSizeMB" class="w-32 px-2 py-1 text-sm border border-gray-300 rounded" placeholder="e.g. 1.5" />
+            </div>
+          </div>
+
+
+        <!-- Submit Button -->
         </div>
         <div class="text-center">
           <button type="submit" id="submitBtn" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition">
              Add Book
           </button>
         </div>
+
+
       </form>
 
       <!-- Book List -->
@@ -136,6 +174,20 @@
       </div>
     </th>
 
+    <!-- Price -->
+    <th class="px-4 py-2 border border-gray-300 relative">
+      <div class="flex items-center justify-between">
+        <span id="priceHeaderText" class="cursor-pointer font-semibold">Price</span>
+        <!-- <div class="relative">
+          <button id="priceSortBtn" class="ml-2">▼</button>
+          <div id="priceDropdown" class="absolute right-0 mt-1 bg-white border border-gray-300 rounded shadow hidden z-10">
+            <button data-sort="asc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↓Ascending</button>
+            <button data-sort="desc" class="block px-3 py-1 hover:bg-gray-200 w-full text-left">↑Descending</button>
+          </div> -->
+        </div>
+      </div>
+    </th>
+
     <!-- Age -->
     <th class="px-4 py-2 border border-gray-300 relative">
       <div class="flex items-center justify-between">
@@ -150,8 +202,19 @@
       </div>
     </th>
 
+ <!-- Details -->
+<th class="px-4 py-2 border border-gray-300 relative">
+  <div class="flex items-center justify-between">
+    <span id="detailsHeaderText" class="cursor-pointer font-semibold">Details</span>
+    <!-- You can add a sort icon here if needed -->
+  </div>
+</th>
+
+
+
     <!-- Actions -->
     <th class="px-4 py-2 border border-gray-300 font-semibold">Actions</th>
+
   </tr>
 </thead>
           <tbody>
@@ -160,7 +223,7 @@
         </table>
       </div>
     </div>
-
+    <script src="bookClasses.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
